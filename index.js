@@ -4,7 +4,7 @@ const fs = require('fs');
 const countDatabase = new Map();
 
 // TODO: public port
-app.listen(8080);
+app.listen(80);
 
 function handler (req, res) {
   // TODO: sanitize req.url
