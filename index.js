@@ -3,7 +3,7 @@ const io = require('socket.io')(app);
 const fs = require('fs');
 
 // TODO: public port
-app.listen(8080);
+app.listen(80);
 
 const countDatabase = new Map();
 
