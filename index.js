@@ -4,27 +4,38 @@ const fs = require('fs');
 const countDatabase = new Map();
 
 // TODO: public port
-app.listen(80);
+app.listen(8080);
 
 function handler (req, res) {
   // TODO: sanitize req.url
-  fs.readFile(
-    __dirname + `/public${req.url === '/' ? '/index.html' : req.url}`,
-    'utf8',
-    (err, data) => {
-      if (err) {
-        res.writeHead(500);
-        return res.end(`Error loading ${req.url}`);
-      }
-      const contentType = handleContentType(req.url);
-      
-
-      res.writeHead(200, {"Content-Type": `${contentType}; charset=utf-8`});
-      res.write(data, "utf8");
-      // res.writeHead(200);
-      res.end();
-    }
-  );
+  const filePath = __dirname + `/public${req.url === '/' ? '/index.html' : req.url}`;
+  const contentType = handleContentType(req.url);
+  
+  if (req.url.includes('text/html')) {
+    fs.readFile(  
+      'utf8',
+      (err, data) => {
+        if (err) {
+          res.writeHead(500);
+          return res.end(`Error loading ${req.url}`);
+        }
+        res.writeHead(200, {"Content-Type": `${contentType}`});
+        res.write(data, "utf8");
+        res.end();
+      });
+  } else {
+    var s = fs.createReadStream(filePath);
+    s.on('open', () => {
+      res.setHeader('Content-Type', contentType);
+      s.pipe(res);
+    });
+    
+    s.on('error', function () {
+      res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 404;
+      res.end('Not found');
+    });
+  }
 }
 
 function handleContentType(url) {
@@ -36,8 +47,10 @@ function handleContentType(url) {
     return 'image/png';
   } else if (url.includes('.jpg')) {
     return 'image/jpeg';
+  } else if (url.includes('.ico')) {
+    return 'image/vnd.microsoft.icon';
   } else {
-    return 'text/html';
+    return 'text/html; charset=utf-8';
   }
 }
 io.on('connection', (socket) => {  
