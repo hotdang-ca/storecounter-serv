@@ -1,25 +1,45 @@
 const app = require('http').createServer(handler)
 const io = require('socket.io')(app);
 const fs = require('fs');
+const countDatabase = new Map();
 
 // TODO: public port
 app.listen(8080);
 
-const countDatabase = new Map();
-
 function handler (req, res) {
-  fs.readFile(__dirname + '/public/index.html',
-  (err, data) => {
-    if (err) {
-      res.writeHead(500);
-      return res.end('Error loading index.html');
-    }
+  // TODO: sanitize req.url
+  fs.readFile(
+    __dirname + `/public${req.url === '/' ? '/index.html' : req.url}`,
+    'utf8',
+    (err, data) => {
+      if (err) {
+        res.writeHead(500);
+        return res.end(`Error loading ${req.url}`);
+      }
+      const contentType = handleContentType(req.url);
+      
 
-    res.writeHead(200);
-    res.end(data);
-  });
+      res.writeHead(200, {"Content-Type": `${contentType}; charset=utf-8`});
+      res.write(data, "utf8");
+      // res.writeHead(200);
+      res.end();
+    }
+  );
 }
 
+function handleContentType(url) {
+  if (url.includes('.css')) {
+    return 'text/css';
+  } else if (url.includes('.js')) {
+    return 'application/javascript'
+  } else if (url.includes('.png')) {
+    return 'image/png';
+  } else if (url.includes('.jpg')) {
+    return 'image/jpeg';
+  } else {
+    return 'text/html';
+  }
+}
 io.on('connection', (socket) => {  
   console.log('someone connected...');
 

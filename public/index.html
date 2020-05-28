@@ -1,78 +1,68 @@
 <!DOCTYPE html>
+<!-- 
+    Hand-coded with ❤️ by James Perih, Four and a Half Giraffes, Ltd.
+-->
 <html lang="en">
   <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-167428297-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', '');
+    </script>
+
+    <!-- Links to resources -->
+    <link rel="stylesheet" href="./main.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="manifest" href="./site.webmanifest">
+
+    <!-- Main Meta Tags -->
     <meta name="charset" value="UTF-8">
-    <title>In and Out</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="In and Out - A free Store Counter webapp ">
+    <meta name="author" content="James Perih, Four And A Half Giraffes, Ltd.">
+
+    <title>In and Out - A Store Population Counter</title>
+
+    <!-- Open Graph -->
+    <meta property="og:image" content="https://storecounter.hotdang.ca/banner.png" />
+    <meta property="og:site_name" content="In and Out - A free Store Counter webapp" />
+    <meta property="og:title" content="In and Out - A free Store Counter webapp" />
+    <meta property="og:url" content="https://storecounter.hotdang.ca" />
+    <meta property="og:description" content="In and Out - A free Store Counter webapp" />
+    
+    <!-- Some other nuts and bolts -->
     <script src="/socket.io/socket.io.js"></script>
+    <script defer src="./main.js"></script>
   </head>
   <body>
+
     <div>
-      <input id="tenant" placeholder="tenant name">
+      <h1>In And Out</h1>
+      <h2>A retail store counter app</h2>
+      <p>Set your location name, first:</p>
+      <input type="text" id="tenant" placeholder="location name">
     </div>
 
     <div id="count"></div>
-    <button id="plus">+</button>
-    <button id="minus">-</button>
 
-    <script>
-      const socket = io('https://storecounter.hotdang.ca'); // the public-facing URL
-      const plusButton = document.getElementById('plus');
-      const minusButton = document.getElementById('minus');
-      const countElement = document.getElementById('count');
-      const tenantTextbox = document.getElementById('tenant');
+    <div id="controls">
+      <button id="plus">+</button>
+      <button id="minus">-</button>
+    </div>
+    <div id="controls-secondary">
+      <button id="clear">Clear</button>
+    </div>
 
-      let count = 0;
-      let tenant = '';
-
-      tenantTextbox.addEventListener('keyup', (e) => {
-        tenant = e.target.value;
-        requestNewData();
-      });
-
-      plusButton.addEventListener('click', (e) => {
-        if (!tenant || tenant === '') {
-          alert('Set tenant first!');
-          return;
-        }
-        count += 1;
-        socket.emit('count', { tenant, count });
-      });
-
-      minusButton.addEventListener('click', (e) => {
-        if (!tenant || tenant === '') {
-          alert('Set tenant first!');
-          return;
-        }
-
-        count = Math.max(count - 1, 0);
-        socket.emit('count', { tenant, count });
-      });
-
-      function displayCount() {
-        countElement.innerHTML = count;
-      }
-
-      function requestNewData() {
-        socket.emit('getCount', { tenant });
-      }
-      
-      /** 
-       * Socket Events
-       */
-      socket.on('connect', () => { 
-        console.log('connected.');
-        socket.emit('getCount', {tenant}); 
-      });
-
-      socket.on('count', (data) => {
-        console.log(data);
-        const { tenant: whichTenant, count: newCount } = data;
-        if (whichTenant === tenant) {
-          count = newCount;
-          displayCount();
-        }
-      });
-
-    </script>
+    <footer class="postmark">
+      Another small project built with ❤️ by<br/>
+      James Perih @ <a href="https://fourandahalfgiraffes.ca" target="_blank" rel="noopener noreferrer">Four and A Half Giraffes, Ltd.</a><br/>
+      Custom Software Development based in Regina, SK<br/>
+    </footer>
   </body>
 </html>
