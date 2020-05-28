@@ -11,7 +11,7 @@ function handler (req, res) {
   const filePath = __dirname + `/public${req.url === '/' ? '/index.html' : req.url}`;
   const contentType = handleContentType(req.url);
   
-  if (req.url.includes('text/html')) {
+  if (req.url.includes('text/' || req.url.includes('application/'))) {
     fs.readFile(  
       'utf8',
       (err, data) => {
@@ -29,7 +29,7 @@ function handler (req, res) {
       res.setHeader('Content-Type', contentType);
       s.pipe(res);
     });
-    
+
     s.on('error', function () {
       res.setHeader('Content-Type', 'text/plain');
       res.statusCode = 404;
