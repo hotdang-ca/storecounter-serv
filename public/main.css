@@ -132,4 +132,8 @@ li {
     .masthead {
         flex-direction: row;
     }
+
+    .content {
+        min-height: 90vh;
+    }
 }
