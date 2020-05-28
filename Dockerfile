@@ -12,7 +12,7 @@ RUN npm install
 COPY . /app
 
 # Tell Docker about the port we'll run on.
-EXPOSE 80
+EXPOSE 8080
 
 # Entrypoint
 CMD ["npm", "start"]
