@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="charset" value="UTF-8">
+    <title>In and Out</title>
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <div>
+      <input id="tenant" placeholder="tenant name">
+    </div>
+
+    <div id="count"></div>
+    <button id="plus">+</button>
+    <button id="minus">-</button>
+
+    <script>
+      const socket = io('http://localhost:8080');
+      const plusButton = document.getElementById('plus');
+      const minusButton = document.getElementById('minus');
+      const countElement = document.getElementById('count');
+      const tenantTextbox = document.getElementById('tenant');
+
+      let count = 0;
+      let tenant = '';
+
+      tenantTextbox.addEventListener('keyup', (e) => {
+        tenant = e.target.value;
+        requestNewData();
+      });
+
+      plusButton.addEventListener('click', (e) => {
+        if (!tenant || tenant === '') {
+          alert('Set tenant first!');
+          return;
+        }
+        count += 1;
+        socket.emit('count', { tenant, count });
+      });
+
+      minusButton.addEventListener('click', (e) => {
+        if (!tenant || tenant === '') {
+          alert('Set tenant first!');
+          return;
+        }
+
+        count = Math.max(count - 1, 0);
+        socket.emit('count', { tenant, count });
+      });
+
+      function displayCount() {
+        countElement.innerHTML = count;
+      }
+
+      function requestNewData() {
+        socket.emit('getCount', { tenant });
+      }
+      
+      /** 
+       * Socket Events
+       */
+      socket.on('connect', () => { 
+        console.log('connected.');
+        socket.emit('getCount', {tenant}); 
+      });
+
+      socket.on('count', (data) => {
+        console.log(data);
+        const { tenant: whichTenant, count: newCount } = data;
+        if (whichTenant === tenant) {
+          count = newCount;
+          displayCount();
+        }
+      });
+
+    </script>
+  </body>
+</html>
