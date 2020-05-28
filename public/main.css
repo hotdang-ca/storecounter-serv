@@ -35,7 +35,6 @@ body {
     display: flex;
     flex-direction: column;
     font-family: var(--primary-font);
-    max-height: 100vh;
     justify-content: space-between;
     margin: 0;
     padding: 0;
@@ -82,8 +81,8 @@ footer {
 }
 
 img.logo {
-    height: 64px;
-    width: auto;
+    width: 60vw;
+    height: auto;
 }
 
 .masthead {
@@ -116,9 +115,9 @@ li {
 }
 
 /* For larger displays */
-@media only screen and (min-width: 414px) {
-    img {
-        width: 50vw;
+@media only screen and (min-width: 415px) {
+    img.logo {
+        width: 64px;
     }
     
     button {
