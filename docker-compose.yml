@@ -1,0 +1,21 @@
+version: '2'
+services:
+  storecounter-serv:
+    container_name: storecontainer-serv
+
+    environment:
+      NODE_ENV: production
+      VIRTUAL_HOST: storecounter.hotdang.ca
+      LETSENCRYPT_HOST: storecounter.hotdang.ca
+      LETSENCRYPT_EMAIL: james+storecounter@hotdang.ca
+
+    build:
+      context: .
+     
+    expose:
+      - 80
+
+networks:
+  default:
+    external:
+      name: nginx-proxy
