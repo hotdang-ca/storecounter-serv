@@ -72,7 +72,7 @@ button {
     width: initial;
 }
 
-#count {
+#count, .count {
     font-size: 8rem;
 }
 
@@ -116,6 +116,23 @@ li {
 .postmark a {
     color: var(--secondary-bg);
     text-decoration: none;
+}
+
+#tenant-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.tenant-card {
+    width: 20vw;
+    margin: 8px 8px;
+    height: 300px;
+}
+
+.tenant-card input {
+    width: 200px;
 }
 
 /* For larger displays */
