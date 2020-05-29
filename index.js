@@ -11,9 +11,21 @@ function handler (req, res) {
   // TODO: sanitize req.url
   const filePath = __dirname + `/public${req.url === '/' ? '/index.html' : req.url}`;
   const contentType = handleContentType(req.url);
-  
+
+  if (req.url === '/stats') {
+    const mapMap = {};
+    for (let [k, v] of countDatabase) {
+      mapMap[k] = v;
+    }
+
+    res.writeHead(200, {"Content-Type": "application/json"});
+    res.write(JSON.stringify(mapMap));
+    res.end();
+    return;
+  }
+
   if (req.url.includes('text/' || req.url.includes('application/'))) {
-    fs.readFile(  
+    fs.readFile(
       'utf8',
       (err, data) => {
         if (err) {
@@ -54,6 +66,7 @@ function handleContentType(url) {
     return 'text/html; charset=utf-8';
   }
 }
+
 io.on('connection', (socket) => {  
   console.log('someone connected...');
 
@@ -62,12 +75,13 @@ io.on('connection', (socket) => {
 
     const { tenant } = data;
     if (!countDatabase.get(tenant)) {
-      countDatabase.set(tenant, 0);
+      // DO NOT INIT, because then every typed char becomes a map
+      // countDatabase.set(tenant, 0);
     }
 
     socket.emit('count', {
       tenant,
-      count: countDatabase.get(tenant),
+      count: countDatabase.get(tenant) || 0,
     });
   });
 
