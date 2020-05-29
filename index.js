@@ -5,7 +5,12 @@ const countDatabase = new Map();
 
 // TODO: public port
 console.info('Listening');
-app.listen(8080);
+if (!process.env.PORT) {
+   console.error('No port specified.');
+   return -1
+}
+
+app.listen(process.env.PORT);
 
 function handler (req, res) {
   // TODO: sanitize req.url

@@ -26,6 +26,7 @@ function displayCount(forElementId, count) {
     tenantNameElement.disabled = 'disabled';
     tenantNameElement.setAttribute('type', 'text');
     tenantNameElement.value = forElementId;
+    tenantNameElement.title = forElementId;
     newElement.appendChild(tenantNameElement);
 
     // tenant count
@@ -46,14 +47,25 @@ function requestNewData() {
 /** 
  * Socket Events
  */
-
 socket.on('connect', () => {
-    // fetch('/stats', { headers: { 'Accept': 'application/json' }})
-    //     .then((result) => result.json())
-    //     .then((_) => {
+    fetch('/stats', { headers: { 'Accept': 'application/json' }})
+        .then((result) => result.json())
+        .then((results) => {
+            console.log('results', results);
+            if (!results.length) {
+                throw ('no results');
+            }
+
+            tenants = Object.keys(results);;
+            for (tenant of tenants) {
+                console.log('getting count for ', tenant);
+                socket.emit('getCount', { tenant }); 
+            }
+        }).catch((err) => {
+            console.log('error', err);
             const mockTenants = {
                 "123": 30,
-                "ca.hotdang.retailstore": 14,
+                "ca.hotdang.retailstore": 18,
                 "james": 10,
                 "": 0,
                 "t,e": 2,
@@ -63,22 +75,20 @@ socket.on('connect', () => {
                 "t,e to": 1,
                 "Used ice and *33_to q. x x g2x xx xx xx 6": 1,
                 "ccccc  mk,p": 1,
-                "gud eats": 2
-            };
-
-            console.log('tenants', Object.keys(mockTenants));
+                "gud eats": 2,
+                "home": 16,
+                "dewdney": 4,
+                "test": 3,
+                "Levi": 0,
+                "Regina": 3
+            }
 
             tenants = Object.keys(mockTenants);
 
-            console.log('tenants', tenants);
-
             for (tenant of tenants) {
-                console.log('getting count for ', tenant);
                 socket.emit('getCount', { tenant }); 
             }
-        // }).catch((err) => {
-        //     console.log('error', err);
-        // });
+        });
 });
 
 socket.on('count', (data) => {
