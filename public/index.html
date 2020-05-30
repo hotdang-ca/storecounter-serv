@@ -41,9 +41,12 @@
     <script defer src="./main.js"></script>
   </head>
   <body>
-    <div class="content">
+    <div class="icon-container">
+      <i id="expand-button" role="button" title="expand" tabindex="0" class="fas fa-expand-alt iconbutton"></i>
+    </div>
 
-      <div class="masthead">
+    <div class="content" id="content">
+      <div id="masthead" class="masthead">
         <div>
           <h1>In And Out</h1>
           <img class="logo" src="./android-chrome-192x192.png" alt="Logo" />
@@ -74,8 +77,11 @@
         </div>
       </div>
   
-      <div>
+      <div id="instructions">
         <p>Set your location name, first:</p>
+      </div>
+
+      <div id="location-name-input">
         <input type="text" id="tenant" placeholder="location name">
       </div>
   
@@ -85,6 +91,7 @@
         <button id="plus">+</button>
         <button id="minus">-</button>
       </div>
+
       <div id="controls-secondary">
         <button id="clear">Clear</button>
       </div>
