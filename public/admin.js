@@ -52,7 +52,7 @@ socket.on('connect', () => {
         .then((result) => result.json())
         .then((results) => {
             console.log('results', results);
-            if (!results.length) {
+            if (!results) {
                 throw ('no results');
             }
 
