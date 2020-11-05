@@ -12,48 +12,64 @@ if (!process.env.PORT) {
 
 app.listen(process.env.PORT);
 
-function handler (req, res) {
-  // TODO: sanitize req.url
-  const filePath = __dirname + `/public${req.url === '/' ? '/index.html' : req.url}`;
-  const contentType = handleContentType(req.url);
+function stripSpaces(stringWithSpaces) {
+  return stringWithSpaces.replace(' ', '');
+}
 
-  if (req.url === '/stats') {
-    const mapMap = {};
-    for (let [k, v] of countDatabase) {
-      mapMap[k] = v;
+function handler (req, res) {
+    var path = req.url;
+
+    if (path.indexOf('?') > -1) {
+        // trim off the url params
+        path = path.split('?')[0];
+    }
+    // TODO: sanitize req.url
+    const filePath = __dirname + `/public${path === '/' ? '/index.html' : path}`;
+    const contentType = handleContentType(path);
+
+    // API: status
+    if (path === '/stats') {
+        const mapMap = {};
+        for (let [k, v] of countDatabase) {
+            mapMap[k] = v;
+        }
+
+        res.writeHead(200, {"Content-Type": "application/json"});
+        res.write(JSON.stringify(mapMap));
+        res.end();
+        return;
     }
 
-    res.writeHead(200, {"Content-Type": "application/json"});
-    res.write(JSON.stringify(mapMap));
-    res.end();
-    return;
-  }
+    // some sort of JSON
+    if (req.url.includes('text/' || req.url.includes('application/'))) {
+        console.log('url includes text/ or application/');
 
-  if (req.url.includes('text/' || req.url.includes('application/'))) {
-    fs.readFile(
-      'utf8',
-      (err, data) => {
-        if (err) {
-          res.writeHead(500);
-          return res.end(`Error loading ${req.url}`);
-        }
-        res.writeHead(200, {"Content-Type": `${contentType}`});
-        res.write(data, "utf8");
-        res.end();
-      });
-  } else {
-    var s = fs.createReadStream(filePath);
-    s.on('open', () => {
-      res.setHeader('Content-Type', contentType);
-      s.pipe(res);
-    });
+        fs.readFile(
+            'utf8',
+            (err, data) => {
+                if (err) {
+                    res.writeHead(500);
+                    return res.end(`Error loading ${req.url}`);
+                }
+                
+                res.writeHead(200, {"Content-Type": `${contentType}`});
+                res.write(data, "utf8");
+                res.end();
+        });
+    } else {
+        // site pages
+        var s = fs.createReadStream(filePath);
+        s.on('open', () => {
+            res.setHeader('Content-Type', contentType);
+            s.pipe(res);
+        });
 
-    s.on('error', function () {
-      res.setHeader('Content-Type', 'text/plain');
-      res.statusCode = 404;
-      res.end('Not found');
-    });
-  }
+        s.on('error', function () {
+            res.setHeader('Content-Type', 'text/plain');
+            res.statusCode = 404;
+            res.end('Not found');
+        });
+    }
 }
 
 function handleContentType(url) {
@@ -78,10 +94,11 @@ io.on('connection', (socket) => {
   socket.on('getCount', (data) => {
     console.log(`someone asked for a count on ${data.tenant}`);
 
-    const { tenant } = data;
-    if (!countDatabase.get(tenant)) {
-      // DO NOT INIT, because then every typed char becomes a map
-      // countDatabase.set(tenant, 0);
+    const { tenant: tenantInput } = data;
+    const tenant = stripSpaces(tenantInput);
+
+    if (!tenant.length) {
+      socket.emit('count', { error: `${tenantInput} is not a valid name`});
     }
 
     socket.emit('count', {
@@ -91,11 +108,15 @@ io.on('connection', (socket) => {
   });
 
   socket.on('count', (data) => {
-    console.log(data);
+    const { tenant: tenantInput, count } = data;
 
-    const { tenant, count } = data;
-    countDatabase.set(tenant, count);
-    io.emit('count', data); // to everyone
+    const tenant = stripSpaces(tenantInput);
+    if (tenant.length) {
+      countDatabase.set(tenant, count);
+      io.emit('count', data); // to everyone
+    } else {
+      io.emit('count', { error: `${tenantInput} is not a valid name`});
+    }
   });
 
   socket.on('disconnect', () => {
