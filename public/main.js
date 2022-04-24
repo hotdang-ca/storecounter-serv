@@ -1,7 +1,8 @@
 const version = '1.0.0';
 console.log(`in-and-out ${version}\n© Four And A Half Giraffes, Ltd.\Free and Open Source for public use.`);
 
-const socket = io('https://storecounter.hotdang.ca'); // the public-facing URL
+//const socket = io('https://storecounter.hotdang.ca'); // the public-facing URL
+const socket = io('http://localhost:3000');
 
 const plusButton = document.getElementById('plus');
 const minusButton = document.getElementById('minus');
